@@ -1,0 +1,101 @@
+--Query: Count of events by type and total number of events.
+SELECT 
+    channel,
+    COUNT(*) AS event_count
+FROM 
+    web_events
+GROUP BY 
+    channel
+ORDER BY 
+    event_count DESC;
+
+--  Summarizes the number of orders and total revenue by region
+SELECT 
+    r.name region_name,
+    COUNT(o.id) AS total_orders,
+    SUM(o.total_amt_usd) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    accounts a
+	ON o.account_id = a.id
+JOIN 
+	sales_reps s
+	ON s.id = a.sales_rep_id
+JOIN 
+    region r 
+	ON s.region_id = r.id
+GROUP BY 
+    r.name
+ORDER BY 
+    total_revenue DESC;
+
+-- Calculates the average order value for each sales rep.
+SELECT 
+    s.name sales_personnel,
+    COUNT(o.id) AS total_orders,
+    AVG(o.total_amt_usd) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    accounts a
+	ON o.account_id = a.id
+JOIN 
+	sales_reps s
+	ON s.id = a.sales_rep_id
+JOIN 
+    region r 
+	ON s.region_id = r.id
+GROUP BY 
+    s.name
+ORDER BY 
+    total_orders DESC
+Limit 6;
+
+-- Accounts behaviour by number of events
+SELECT 
+	a.name account_name,
+    COUNT(we.id) AS total_events
+FROM 
+    orders o
+JOIN 
+    accounts a
+	ON o.account_id = a.id
+LEFT JOIN 
+    web_events we ON a.id = we.account_id
+GROUP BY 
+    a.name
+ORDER BY 
+    total_events DESC
+
+
+-- Sales rep and number of accounts being handled
+select 
+	s.name as sales_rep,
+	count(a.id) count_of_accounts
+from sales_reps s
+left join accounts a
+	 on s.id = a.sales_rep_id
+group by s.name
+having count(a.id) = 3
+order by count(a.id) 
+
+-- Calculates the average order value for each sales rep.
+SELECT 
+    w.channel,
+    COUNT(distinct o.id) AS total_orders,
+	SUM(o.total) AS all_sales,
+	SUM(o.total_amt_usd) AS total_revenue,
+    AVG(o.total_amt_usd) AS avg_revenue
+FROM 
+    orders o
+JOIN 
+    accounts a
+	ON o.account_id = a.id
+JOIN web_events w
+	ON w.account_id = a.id
+GROUP BY 
+    w.channel
+ORDER BY 
+    total_orders DESC
+
